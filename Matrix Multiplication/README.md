@@ -1,7 +1,15 @@
-Project 2 Information
-============================================================
-The program is in MIPS using Mars as an emulator.
 
+### The program is written MIPS using Mars as an emulator.
+
+### How to start the program
+
+1. Execute Mars4_5.jar file
+2. Go File -> Open and select "Project 2"
+3. Go Run -> Aseemble
+4. Press the green "Go" button
+5. "D.bin" should be created/updated
+
+### Demonstration
 The program contains 4 buffers that will store contents 
 from binary file in memory.
 
@@ -30,19 +38,8 @@ The program then opens up D.bin and writes the content of
 bufferD into D.bin and outputs the file back to the
 current directory.
 
+### Notes
 
-
-How to start the program
-============================================================
-1. Execute Mars4_5.jar file
-2. Go File -> Open and select "Project 2"
-3. Go Run -> Aseemble
-4. Press the green "Go" button
-5. "D.bin" should be created/updated
-
-
-Extra Notes
-============================================================
 1. Please refer to the result.jpeg to compare the expected
    results with the results found
 2. Mars should be able to run without any installation.
