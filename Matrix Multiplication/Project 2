@@ -1,0 +1,178 @@
+    .data
+
+bufferA: .space 36
+bufferB: .space 36
+bufferC: .space 36
+bufferD: .space 36
+
+
+fileA: .asciiz "A.bin"
+fileB: .asciiz "B.bin"
+fileC: .asciiz "C.bin"
+fileD: .asciiz "D.bin"
+
+
+    .text
+# Open File A
+
+	li	$v0, 13			
+	la	$a0, fileA		
+	add	$a1, $0, $0		
+	add	$a2, $0, $0		
+	syscall				
+	add	$s0, $v0, $0		
+
+# Read 16 bytes from file, storing in bufferA
+
+	li	$v0, 14			
+	add	$a0, $s0, $0		
+	la	$a1, bufferA		
+	li	$a2, 36			
+	syscall
+	
+# Close fileA
+	
+	li 	$v0, 16  
+    	syscall
+	
+# Open File B
+
+	li	$v0, 13			
+	la	$a0, fileB		
+	add	$a1, $0, $0		
+	add	$a2, $0, $0		
+	syscall				
+	add	$s0, $v0, $0		
+
+# Read 16 bytes from file, storing in bufferB
+
+	li	$v0, 14			
+	add	$a0, $s0, $0		
+	la	$a1, bufferB		
+	li	$a2, 36			
+	syscall
+	
+# Close FileB
+
+	li 	$v0, 16  
+    	syscall
+	
+# Open File C
+
+	li	$v0, 13			
+	la	$a0, fileC		
+	add	$a1, $0, $0		
+	add	$a2, $0, $0		
+	syscall				
+	add	$s0, $v0, $0		
+
+# Read 16 bytes from file, storing in bufferC
+
+	li	$v0, 14			
+	add	$a0, $s0, $0		
+	la	$a1, bufferC		
+	li	$a2, 36			
+	syscall
+
+# Close File C
+
+	li 	$v0, 16  
+    	syscall
+
+#main		
+	li 	$s0, 0			# Memory Location for ArrayD in Multiplication Operation (1st Step)
+	li 	$s2, 0 			# Memory Location for ArrayD in Addition Operation (2nd Step)
+
+	li 	$s5, -4 			# Memory Location for ArrayA 
+	li 	$s6, -12 			# Memory Location for ArrayB
+	li 	$s7, 0			# Counter for number of rows and col (3)
+				
+	li 	$t2, 0			# Offset Memory Location for ArrayA
+	li 	$t3, 0			# Offset Memory Location for ArrayB
+	
+	
+	
+multiplyMatrix:					# Loops 3 times and stores the sum of the 3 products into the correct Memory Location in BufferD
+	add 	$s5, $s5, 4			# Offset for Memory Location in ArrayA increments by 4 (next number)
+	add 	$s6, $s6, 12		# Offset for Memory Location in ArrayB increments by 12 (next 3 numbers)
+
+	lwc1 	$f0, bufferA($s5)		# Loads value of bufferA into $f0 from mem location $s5
+	lwc1 	$f1, bufferB($s6)		# Loads value of bufferB into $f1 frim mem location $s6
+	mul.s 	$f2, $f0, $f1		# muliplies the value and stores in $f2
+	
+	lwc1 	$f10, bufferD($s0)		# Load current value of bufferD at mem location $s0
+	add.s 	$f10, $f10, $f2		# Adds up the previous value with the value found on line 91
+	swc1 	$f10, bufferD($s0)		# Restores the new value into $s0
+	
+	add 	$s3, $s3, 4
+	add 	$s4, $s4, 12
+	add 	$s7, $s7, 1			# Increment counter to by 1 (exits at 3)
+	
+	blt 	$s7, 3, multiplyMatrix		# Branch if coutner is less than 3
+	
+	li 	$s5, -4			# Reset starting parameters
+	li 	$s6, -12			
+	li 	$s7, 0
+	
+	#lwc1 	$f12, bufferD($s0)
+	#li 	$v0, 2
+	#syscall
+	
+	add 	$t3, $t3, 4			# Increase Offset for ArrayB by 4, (next number)
+	add 	$s6, $s6, $t3		# Adds the offset for the memory location for ArrayB
+	add 	$s5, $s5, $t2		# Adds the offset for the memory location for ArrayA
+	
+	add 	$s0, $s0, 4			# Move the memory location for the next number to be written
+	
+	bgt 	$t3, 8, resetOffsetB	# Branches if ArrayB offset is greater than 8. (In 3 iterations)
+	ble 	$s0, 32, multiplyMatrix	# Repeats the loop with new parameters
+
+resetOffsetB: 
+	li 	$t3, 0			# Resets the offset for B to 0
+	li 	$s6, -12			
+	
+	add 	$t2, $t2, 12		# Increase Offset for ArrayA by 12 (next 3 number)
+	add 	$s5, $t2, -4		
+	
+	ble 	$s0, 32, multiplyMatrix	# Branch back to multiplyMatrix if the matrix has not been completed
+
+
+addMatrix:
+	lwc1 	$f0, bufferD($s2)		# Loads value of BufferD at mem location $s2 in $f0
+	lwc1	$f1, bufferC($s2)		# Loads value of BufferC at mem location $s2 in $f1
+	add.s	$f2, $f0, $f1		# Adds $f0 and $f1
+	swc1	$f2, bufferD($s2)		# Store the value back into bufferD at mem location $s2
+	
+	lwc1	$f12, bufferD($s2)
+	li 	$v0, 2
+	syscall
+	
+	add 	$s2, $s2, 4			# Increment to the next float
+	blt 	$s2, 36, addMatrix		# Branch when finish
+	
+
+# Open File D
+
+	li	 $v0, 13			
+	la 	$a0, fileD		
+	li	 $a1, 1		
+	li 	$a2, 0		
+	syscall				
+		
+
+#Write FileD
+	move 	$a0, $v0
+	li	$v0, 15					
+	la	$a1, bufferD	
+	li	$a2, 36			
+	syscall
+	
+# Close FileD
+	li $v0, 16  
+    	syscall
+	
+
+
+	
+	
+	

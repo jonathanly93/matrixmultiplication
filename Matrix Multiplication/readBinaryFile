@@ -1,0 +1,47 @@
+    .data
+
+bufferD: .space 36
+
+fileD: .asciiz "D.bin"
+
+
+    .text
+# Open File D
+
+	li	$v0, 13			
+	la	$a0, fileD		
+	add	$a1, $0, $0		
+	add	$a2, $0, $0		
+	syscall				
+	add	$s0, $v0, $0		
+
+# Read 16 bytes from file, storing in bufferD
+
+	li	$v0, 14			
+	add	$a0, $s0, $0		
+	la	$a1, bufferD		
+	li	$a2, 36			
+	syscall
+	
+# Close fileD
+	
+	li 	$v0, 16  
+    	syscall
+	
+
+readBinaryFile:
+					# Loads value of BufferD at mem location $s2 in $f0
+						# Loads value of BufferC at mem location $s2 in $f1
+	li 	$v0, 2
+	lwc1 	$f12, bufferD($s2)
+	syscall
+	
+	add 	$s2, $s2, 4			# Increment to the next float
+	blt 	$s2, 36, readBinaryFile		# Branch when finish
+	
+
+
+
+	
+	
+	
